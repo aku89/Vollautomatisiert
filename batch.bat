@@ -4,7 +4,6 @@ md Einzelteile
 mv cars.xlsx Einzelteile/
 mv CO2.xlsx Einzelteile/
 mv Emissions.xlsx Einzelteile/
-mv Rplots.pdf Einzelteile/
-
-#md directory1 "directory 2"
-#start directory1
+mv cars.png Einzelteile/
+mv plants.png Einzelteile/
+mv geographic.png Einzelteile/
