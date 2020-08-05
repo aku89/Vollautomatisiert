@@ -63,51 +63,57 @@ hs2 <- createStyle(fgFill=  "#faedc1", halign="CENTER", textDecoration="bold",fo
 hs3 <- createStyle(fgFill= "#a1ffc8", halign="CENTER", textDecoration="bold", fontSize= 11, fontName="Calibri",
                    border= "TopBottomLeftRight")
 
+
 wb <- openxlsx::loadWorkbook("Agenda.xlsx")
 for (i in 1:length(filenames)){
   if (filenames[i]=="Agenda.xlsx"){
     next
   } else if (filenames[i] == "Emissions.xlsx") {
-  addWorksheet(wb, "Global Emission Contributors")
-  GEC <- read.xlsx("Emissions.xlsx")
-  writeData(wb, "Global Emission Contributors", x=GEC, borders="columns", headerStyle = hs2)
-  setColWidths(wb, "Global Emission Contributors", cols=1:3, widths=c(13,10,17))
-  GEC_plot <- GEC%>%ggplot(aes(as.numeric(Year), as.numeric(Emissions_in_tons), col=Country)) + 
-    geom_line(size=1.3) + 
-    ggtitle("Alarming role of China in Global Warming") + 
-    xlab("Years") + 
-    ylab("Emissions in metric Mtons") + 
-    theme(plot.title = element_text(hjust=0.5, vjust=0.1))
-  print(GEC_plot)
-  insertPlot(wb, sheet="Global Emission Contributors", xy=c("F", 1), width = 8, height=6, fileType = "png")
-  saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
+    addWorksheet(wb, "Global Emission Contributors")
+    GEC <- read.xlsx("Emissions.xlsx")
+    writeData(wb, "Global Emission Contributors", x=GEC, borders="columns", headerStyle = hs2)
+    setColWidths(wb, "Global Emission Contributors", cols=1:3, widths=c(13,10,17))
+    png("geographic.png", width=1024, height=768, units="px", res=144)
+    GEC_plot <- GEC%>%ggplot(aes(as.numeric(Year), as.numeric(Emissions_in_tons), col=Country)) + 
+      geom_line(size=1.3) + 
+      ggtitle("Alarming role of China in Global Warming") + 
+      xlab("Years") + 
+      ylab("Emissions in metric Mtons") + 
+      theme(plot.title = element_text(hjust=0.5, vjust=0.1))
+    ggsave(filename="geographic.png", plot= GEC_plot)
+    insertImage(wb, sheet="Global Emission Contributors", file = "geographic.png", startRow=1, startCol="F", width = 8, height=6, units="in")
+    saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
   } else if (filenames[i] == "CO2.xlsx") {
-  addWorksheet(wb, "Plants - A Silver Lining")
-  CO2 <- read.xlsx("CO2.xlsx", colNames = TRUE)
-  writeData(wb, sheet="Plants - A Silver Lining", x=CO2, borders="columns", headerStyle = hs3)
-  setColWidths(wb, "Plants - A Silver Lining", cols=1:5, widths=10)
-  CO2_plot <- CO2%>%
-    ggplot+geom_point(aes(x=uptake, y=conc, col=Plant, size=4)) + 
-    ggtitle("Diffenre in C02-uptake of Plant Species in Northamerica") + 
-    theme(plot.title = element_text(hjust=0.5, vjust=0.1))
-  print(CO2_plot)
-  insertPlot(wb, sheet="Plants - A Silver Lining", xy=c("G", 1), width=8, height=6, fileType="png")
-  saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
+    addWorksheet(wb, "Plants - A Silver Lining")
+    CO2 <- read.xlsx("CO2.xlsx", colNames = TRUE)
+    writeData(wb, sheet="Plants - A Silver Lining", x=CO2, borders="columns", headerStyle = hs3)
+    setColWidths(wb, "Plants - A Silver Lining", cols=1:5, widths=10)
+    png("plants.png", width=1024, height=768, units="px", res=144)
+    CO2_plot <- CO2%>%
+      ggplot+geom_point(aes(x=uptake, y=conc, col=Plant, size=4)) + 
+      ggtitle("Diffenre in C02-uptake of Plant Species in Northamerica") + 
+      theme(plot.title = element_text(hjust=0.5, vjust=0.1))
+    ggsave(filename="plants.png", plot= CO2_plot)
+    insertImage(wb, sheet="Plants - A Silver Lining", file = "plants.png", startRow=1, startCol="G", width = 8, height=6, units="in")
+    saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
   } else if (filenames[i] == "cars.xlsx") {
     addWorksheet(wb, "Connection Carweigth and Range")
     cars <- read.xlsx("cars.xlsx", colNames = TRUE)
     writeData(wb, sheet="Connection Carweigth and Range", x=cars, borders="columns", headerStyle = hs1)
     setColWidths(wb, "Connection Carweigth and Range", cols=1:11, widths=7)
+    png("cars.png", width=1024, height=768, units="px", res=144)
     cars_plot <- mtcars%>%ggplot(aes(mpg, wt)) + 
       geom_point()+stat_cor(method="pearson", label.x=27.5, label.y=5) + 
       geom_smooth(method=lm)+ggtitle("Drive Smaller Cars: Simple as that!") + 
       theme(plot.title= element_text(hjust=0.5, vjust=0.1))
-    print(cars_plot)
-    insertPlot(wb, sheet="Connection Carweigth and Range", xy=c("M",1), fileType="png", width=8, height=6)
+    #plot(cars_plot)
+    ggsave(filename="cars.png", plot= cars_plot)
+    insertImage(wb, sheet="Connection Carweigth and Range", file = "cars.png", startRow=1, startCol="M", width = 8, height=6, units="in")
+    #insertPlot(wb, sheet="Connection Carweigth and Range", xy=c("M",1), fileType="png", width=8, height=6)
     saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
   } else { #for any additional sheets that should not be wrangled
-  addWorksheet(wb, sheetName=names[i])
-  writeData(wb, sheet=names[i], x=read.xlsx(filenames[i]))
-  saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
+    addWorksheet(wb, sheetName=names[i])
+    writeData(wb, sheet=names[i], x=read.xlsx(filenames[i]))
+    saveWorkbook(wb, file="Presentation.xlsx", overwrite=T)
   }
 }
